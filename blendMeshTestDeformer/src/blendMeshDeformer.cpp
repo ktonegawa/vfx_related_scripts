@@ -1,5 +1,4 @@
 #include "blendMeshDeformer.h"
-#include <iostream>
 
 MTypeId BlendMesh::id(0x00000233);
 MObject BlendMesh::aNoiseValue;
@@ -24,7 +23,6 @@ MStatus BlendMesh::deform(MDataBlock& data, MItGeometry& itGeo,
 
 	MDataHandle envData = data.inputValue(envelope, &status);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	if (MS::kSuccess != status) return status;
 	float env = envData.asFloat();
 
 	float bulgeAmount = data.inputValue(aNoiseValue).asFloat();
@@ -33,15 +31,8 @@ MStatus BlendMesh::deform(MDataBlock& data, MItGeometry& itGeo,
 	for (; !itGeo.isDone(); itGeo.next())
 	{
 		point = itGeo.position();
-		double data_array[4];
-		point.get(data_array);
-		int i;
-		MString str = "";
-		for (i = 0; i < 4; i++) {
-			str = str + ", ";
-			str = str + data_array[i];
-		}
-		cerr << "position: " << str << endl;
+
+		cerr << "position: " << point << endl;
 		itGeo.setPosition(point);
 	}
 
