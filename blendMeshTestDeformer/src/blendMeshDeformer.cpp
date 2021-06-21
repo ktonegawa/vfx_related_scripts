@@ -1,4 +1,5 @@
 #include "blendMeshDeformer.h"
+#include <iostream>
 
 MTypeId BlendMesh::id(0x00000233);
 MObject BlendMesh::aNoiseValue;
@@ -13,7 +14,7 @@ BlendMesh::~BlendMesh()
 
 void* BlendMesh::creator()
 {
-    return new BlendMesh();
+	return new BlendMesh();
 }
 
 MStatus BlendMesh::deform(MDataBlock& data, MItGeometry& itGeo,
@@ -21,43 +22,28 @@ MStatus BlendMesh::deform(MDataBlock& data, MItGeometry& itGeo,
 {
 	MStatus status;
 
-	MArrayDataHandle hInput = data.outputArrayValue(input, &status);
+	MDataHandle envelopeData = data.inputValue(envelope, &status);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	status = hInput.jumpToElement(geomIndex);
-	MDataHandle hInputElement = hInput.outputValue(&status);
-	MObject oInputGeom = hInputElement.child(inputGeom).asMesh();
-
-	MFnMesh fnMesh(oInputGeom, &status);
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-	MFloatVectorArray normals;
-	fnMesh.getVertexNormals(false, normals);
+	float envelope = envelopeData.asFloat();
 
 	float bulgeAmount = data.inputValue(aNoiseValue).asFloat();
-	float env = data.inputValue(envelope).asFloat();
 
 	MPoint point;
 	for (; !itGeo.isDone(); itGeo.next())
 	{
 		point = itGeo.position();
-		double data_array[4];
-		point.get(data_array);
-		int i;
-		MString str = "";
-		for (i = 0; i < 4; i++) {
-			str = str + ", ";
-			str = str + data_array[i];
-		}
-		MGlobal::displayInfo("position: " + str);
-	}
 
+		std::cerr << "position: " << point << endl;
+		itGeo.setPosition(point);
+	}
 
 	return MS::kSuccess;
 }
 
 MStatus BlendMesh::initialize()
 {
-    MStatus status;
-    
+	MStatus status;
+
 	MFnNumericAttribute nAttr;
 
 	aNoiseValue = nAttr.create("noiseValue", "noiseValue", MFnNumericData::kFloat);
